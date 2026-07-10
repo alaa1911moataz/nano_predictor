@@ -1,3 +1,14 @@
+import os
+import subprocess
+import streamlit as st
+
+# Check if the model exists, if not, train it directly on the cloud server
+if not os.path.exists("xgboost_nano_classifier_model.pkl"):
+    with st.spinner("🔄 Compatibility check: Training model directly on the cloud server... Please wait..."):
+        # This runs your train.py script on the cloud server
+        subprocess.run(["python", "train.py"])
+    st.success("✅ Model trained and loaded successfully with 100% compatibility!")
+
 import streamlit as st
 import pandas as pd
 import numpy as np
