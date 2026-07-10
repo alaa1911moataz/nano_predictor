@@ -110,6 +110,8 @@ def load_nano_resources():
 
 try:
     model, encoding_maps = load_nano_resources()
+    st.write("Model type:", type(model))
+    st.write("Encoding type:", type(encoding_maps))
 
     # 7. Web Interactive Feature Form Construction
     # Card A: Physical Properties
