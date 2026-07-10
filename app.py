@@ -12,14 +12,16 @@ st.write("Predict Tumor Targeting and Selectivity Classifications based on Nano-
 # Load the pre-trained full Pipeline
 @st.cache_resource
 def load_model():
-    # Loading the full pipeline that contains both 'prep' and 'model'
     return joblib.load("xgboost_nano_classifier_model.pkl")
 
 try:
     pipeline = load_model()
     
-    # Extract categories from encoder to populate dropdowns dynamically
-    encoder = pipeline.named_steps["prep"].named_transformers_["cat"]
+    # Securely extract categories across different scikit-learn versions
+    preprocessor = pipeline.named_steps["prep"]
+    # Get the OrdinalEncoder transformer safely
+    encoder = preprocessor.named_transformers_["cat"]
+    
     categorical_features = [
         "NP_Class", "INPs_Core", "Shape", "Size_Category", 
         "Zeta_Category", "Organ or tissue", "HAS_PEG", "Shell Type", "Tumor Site"
@@ -32,7 +34,6 @@ try:
     
     # Organize inputs into columns
     col1, col2 = st.columns(2)
-    
     input_data = {}
     
     with col1:
@@ -60,7 +61,6 @@ try:
     st.markdown("---")
     if st.button("🔮 Run Prediction", type="primary"):
         
-        # Pipeline handles both transformation and prediction internally
         predictions = pipeline.predict(input_df)
         probabilities = pipeline.predict_proba(input_df)
         
@@ -69,8 +69,8 @@ try:
         selectivity_pred = "High Selectivity (>= Median)" if predictions[0][1] == 1 else "Low Selectivity (< Median)"
         
         # Parse probabilities
-        tumor_prob = probabilities[0][1][1] * 100 # Prob of class 1 for target 1
-        selectivity_prob = probabilities[1][1][1] * 100 # Prob of class 1 for target 2
+        tumor_prob = probabilities[0][1][1] * 100 
+        selectivity_prob = probabilities[1][1][1] * 100 
         
         # Display Results
         st.subheader("📊 Prediction Results")
