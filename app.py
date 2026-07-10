@@ -4,10 +4,11 @@ import numpy as np
 import joblib
 
 # Set page layout
-st.set_page_config(page_title="Nano-Particle Predictor", layout="centered")
+st.set_page_config(page_title="Smart Nano-Particle Classifier", layout="centered")
 
-st.title("🧪 Nano-Particle Biodistribution Predictor")
-st.write("Predict Tumor Targeting and Selectivity Classifications based on Nano-particle features.")
+st.title("🧬 AI-Powered Smart Classifier")
+st.subheader("Nano-Particle Biodistribution Classifier")
+st.write("Predict if nano-particles will achieve High Tumor Retention and optimal Selectivity.")
 
 # Load the pre-trained full Pipeline
 @st.cache_resource
@@ -17,9 +18,8 @@ def load_model():
 try:
     pipeline = load_model()
     
-    # Securely extract categories across different scikit-learn versions
+    # Safely extract categorical features info
     preprocessor = pipeline.named_steps["prep"]
-    # Get the OrdinalEncoder transformer safely
     encoder = preprocessor.named_transformers_["cat"]
     
     categorical_features = [
@@ -27,12 +27,12 @@ try:
         "Zeta_Category", "Organ or tissue", "HAS_PEG", "Shell Type", "Tumor Site"
     ]
     
-    # Store dynamic categories mapping
+    # Build options list dynamically from the encoder
     categories_dict = {col: list(categories) for col, categories in zip(categorical_features, encoder.categories_)}
 
+    st.markdown("---")
     st.subheader("📋 Input Nano-Particle Features")
     
-    # Organize inputs into columns
     col1, col2 = st.columns(2)
     input_data = {}
     
@@ -53,31 +53,28 @@ try:
         input_data["Administration Dosages (mg/kg)"] = st.number_input("Dosage (mg/kg)", min_value=0.0, value=5.0, step=0.1)
         input_data["Time point (h)"] = st.number_input("Time Point (h)", min_value=0.0, value=24.0, step=0.5)
 
-    # Convert user input to dataframe matching pipeline features order
+    # Order dataframe features exactly as expected by the pipeline
     ordered_features = categorical_features + ["Size (nm)", "Zeta Potential (mv)", "Administration Dosages (mg/kg)", "Time point (h)"]
     input_df = pd.DataFrame([input_data])[ordered_features]
 
-    # Predict Button
     st.markdown("---")
     if st.button("🔮 Run Prediction", type="primary"):
-        
         predictions = pipeline.predict(input_df)
         probabilities = pipeline.predict_proba(input_df)
         
-        # Parse output classes
-        tumor_pred = "High Output (>= Median)" if predictions[0][0] == 1 else "Low Output (< Median)"
+        # Format outputs
+        tumor_pred = "High Retention (>= Median)" if predictions[0][0] == 1 else "Low Retention (< Median)"
         selectivity_pred = "High Selectivity (>= Median)" if predictions[0][1] == 1 else "Low Selectivity (< Median)"
         
-        # Parse probabilities
         tumor_prob = probabilities[0][1][1] * 100 
         selectivity_prob = probabilities[1][1][1] * 100 
         
-        # Display Results
+        # Display results with metrics and progress bars
         st.subheader("📊 Prediction Results")
-        
         res_col1, res_col2 = st.columns(2)
+        
         with res_col1:
-            st.metric(label="Tumor Class", value=tumor_pred)
+            st.metric(label="Tumor Retention Class", value=tumor_pred)
             st.progress(int(tumor_prob))
             st.caption(f"Confidence: {tumor_prob:.2f}%")
             
@@ -88,3 +85,5 @@ try:
 
 except FileNotFoundError:
     st.error("⚠️ Model file 'xgboost_nano_classifier_model.pkl' not found. Please run the training script first.")
+except Exception as e:
+    st.error(f"⚠️ An unexpected error occurred: {e}")
