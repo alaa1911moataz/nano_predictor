@@ -101,11 +101,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 6. Optimized Data Loading Resource Cache
+# 6. Optimized Data Loading Resource Cache (Forced to v2 to bypass Cloud Cache issues)
 @st.cache_resource
 def load_nano_resources():
-    model = joblib.load('xgboost_nano_classifier_model.pkl')
-    encoding_maps = joblib.load('nano_preprocessor.pkl')
+    model = joblib.load('xgboost_nano_classifier_model_v2.pkl')
+    encoding_maps = joblib.load('nano_preprocessor_v2.pkl')
     return model, encoding_maps
 
 try:
