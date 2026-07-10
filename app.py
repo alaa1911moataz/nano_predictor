@@ -229,8 +229,13 @@ try:
             "*Note: Threshold boundaries are dynamically computed based on the median values of the validated historical Nano-Drug Delivery Silver Dataset.*"
         )
 
-    # 10. Footer Attribution Signature
-    st.markdown('<div class="footer-note">Powered by XGBoost Classifier · Designed by Alaa Moataz</div>', unsafe_allow_html=True)
+      # 10. Footer Attribution Signature
+    st.markdown(
+        '<div class="footer-note">Powered by XGBoost Classifier · Designed by Alaa Moataz</div>',
+        unsafe_allow_html=True
+    )
 
 except Exception as e:
-    st.error(f"⚠️ An error occurred while running the model: {e}")
+    import traceback
+    st.exception(e)
+    st.code(traceback.format_exc())
